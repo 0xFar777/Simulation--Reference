@@ -1,0 +1,296 @@
+\documentclass{book}  
+\usepackage{amsmath,lmodern} 
+\usepackage{fancyhdr}
+\usepackage{fontspec}
+\usepackage[UTF8]{ctex}
+\usepackage{ragged2e}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+
+\setmainfont{Times New Roman}
+\renewcommand\tablename{Table}
+
+\begin{document}
+\zihao{4} 
+\centering
+节选第三章 \\
+
+\hspace*{\fill} \\
+
+\zihao{5}
+\justifying
+\noindent
+3.3.$\int_{0}^{1}exp\left\{e^{x}\right\}dx$ \\
+\noindent
+解:代码如下
+\lstset{language = R}
+\begin{lstlisting}
+    #法一:随机模拟
+    r <- runif(10000, min = 0, max = 1)
+    mean(exp(exp(r)))
+    #法二:直接用积分函数求解
+    f <- function(x){exp(exp(x))}
+    integrate(f, lower = 0, upper = 1)
+\end{lstlisting}
+第3题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 2.8cm, width = 6cm]{gramFile/第三题运行截图.PNG}
+    \caption{第三题R代码}
+\end{figure}
+
+\hspace*{\fill} \\
+
+\noindent
+3.7.$\int_{-\infty}^{\infty}e^{-x^{2}}dx$ \\
+这一题用随机模拟需要注意一点:由于$R$语言中的$runif$函数不能输入$-Inf$(负无穷)和$Inf$
+(正无穷),因此可以先两边同时取个对数:$\ln{y} = -x^2$,再转化为:
+$\sqrt{\ln{\frac{1}{y}}} = x^2$,因此原积分转化为:
+$2\int_{0}^{1}\sqrt{\ln\frac{1}{y}}dy$ \\
+解:代码如下
+\lstset{language = R}
+\begin{lstlisting}
+    #法一:随机模拟
+    r <- runif(10000, min = 0, max = 1)
+    mean(2 * sqrt(log(1/r)))
+    #法二:直接用积分函数求解
+    f <- function(x){exp(-(x^2))}
+    integrate(f, lower = -Inf, upper = Inf)
+    #法三:对数转化再用积分函数求解
+    f <- function(x){2 * sqrt(log(1/x))}
+    integrate(f, lower = 0, upper = 1)
+\end{lstlisting}
+第7题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 3.9cm, width = 7.2cm]{gramFile/第七题运行截图.PNG}
+    \caption{第七题R代码}
+\end{figure}
+
+\hspace*{\fill} \\
+
+\noindent
+3.9.$\int_{0}^{\infty}\int_{0}^{x}e^{-(x+y)}dydx$   \\
+解:原式 = $\int_{0}^{\infty}e^{-x}\int_{0}^{x}e^{-y}dydx$ = $\int_{0}^{\infty}e^{-x}(1-e^{-x})dx$  \\
+\indent
+令$y = e^{-x}$,则$\int_{1}^{0}(y-1)dy$ = $\int_{0}^{1}(1-y)dy$
+\lstset{language = R}
+\begin{lstlisting}
+    #法一:平均值模拟
+    r <- runif(10000, min = 0, max = 1)
+    mean(1-r)
+    #法二:蒙特卡洛模拟
+    n <- 10000
+    x<-runif(n, min = 0, max = 1)
+    y<-runif(n, min = 0, max = 1)
+    x1<--log(x)
+    y1<--log(y)
+    z<-sum((exp(-x1-y1)/(x*y))[x1>y1])/n
+    z
+\end{lstlisting}
+第9题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 4.9cm, width = 7.2cm]{gramFile/第九题运行截图.PNG}
+    \caption{第九题R代码}
+\end{figure}
+
+\hspace*{\fill} \\
+
+\noindent
+3.11.Let U be uniform on (0,1). Use simulation to approximate the following:\\
+(a) $Corr(U,\sqrt{1-U^2})$ \\
+(b) $Corr(U^2,\sqrt{1-U^2})$ \\
+解:思路是运用公式$Corr(x,y) = \frac{Cov(x,y)}{\sigma_{x}\sigma_{y}} = \frac{E(xy)-E(x)E(y)}{\sigma_{x}\sigma_{y}}$  \\
+(a)题代码:
+\lstset{language = R}
+\begin{lstlisting}
+    r <- runif(10000, min = 0, max = 1)
+    EXY <- mean(r * sqrt(1-r^2))
+    EXEY <- mean(r) * mean(sqrt(1-r^2))
+    sigma <- sd(r) * sd(sqrt(1-r^2))
+    corr <- (EXY - EXEY) / sigma
+    corr 
+\end{lstlisting}
+(b)题代码:
+\lstset{language = R}
+\begin{lstlisting}
+    r <- runif(10000, min = 0, max = 1)
+    EXY <- mean(r^2 * sqrt(1-r^2))
+    EXEY <- mean(r^2) * mean(sqrt(1-r^2))  
+    sigma <- sd(r^2) * sd(sqrt(1-r^2))
+    corr <- (EXY - EXEY) / sigma
+    corr 
+\end{lstlisting}
+第11题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 4.8cm, width = 7.5cm]{gramFile/第十一题运行截图.PNG}
+    \caption{第十一题R代码}
+\end{figure}
+
+\hspace*{\fill} \\
+
+\noindent
+3.12.For uniform(0,1) random variables $U1$, $U2$, ... define
+$$
+    N = Minimum
+    \left\{
+    \begin{array}{l}
+        n:\sum\limits_{i=1}\limits^{n} U_{i} > 1
+    \end{array}
+    \right\}
+$$
+That is, N is equal to the number of random numbers that must be summed to exceed 1. \\
+(a) Estimate E[N] by generating 100 values of N. \\
+(b) Estimate E[N] by generating 1000 values of N. \\
+(c) Estimate E[N] by generating 10000 values of N. \\
+(d) What do you think is the values of E[N]? \\
+解:(a)-(c)题代码如下
+\lstset{language = R}
+\begin{lstlisting}
+    f <- function(n){
+        result <- vector(length = n)
+        for(i in 1:n) {
+            r <- runif(10000, min = 0, max = 1)
+            sum = 0
+            for(j in 1:length(r)) {
+                sum = sum + r[j]
+                if(sum > 1) {
+                    result[i] = j
+                    break
+                }
+            }
+        }
+        print(mean(result))
+    }
+    f(100)
+    f(1000)
+    f(10000)
+\end{lstlisting}
+第十二题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 2cm, width = 2cm]{gramFile/第十二题运行截图.PNG}
+    \caption{第十二题R代码}
+\end{figure}
+\noindent
+(d)题:结合(a)-(c)题结果,可以猜测E[N]的值为自然底数$e$
+
+\hspace*{\fill} \\
+
+\noindent
+3.13. Let $U_{i}$, $i \geq 1$, be random numbers.Define $N$ by
+$$
+    N = Minimum
+    \left\{
+    \begin{array}{l}
+        n:\prod_{i=1}^{0}U_{i} > 1
+    \end{array}
+    \right\}
+$$
+where $\prod_{i=1}^{0}U_{i} \equiv 1$. \\
+(a) Find E[N] by simulation \\
+(b) Find $P\left\{N=i\right\}$, for i = 0,1,2,3,4,5,6, by simulation. \\
+解:(a)题代码如下
+\lstset{language = R}
+\begin{lstlisting}
+    n <- 10000
+    result <- vector(length = n)
+    for(i in 1:n) {
+        r <- runif(10000, min = 0, max = 1)
+        accumulate = 1
+        for(j in 1:length(r)) {
+            accumulate = accumulate * r[j]
+            if(accumulate < exp(-3)) {
+                result[i] = j-1
+                 break
+            }
+        }
+    }
+    mean(result)
+\end{lstlisting}
+第十三题(a)运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 6cm, width = 8cm]{gramFile/第十三题(a)运行截图.PNG}
+    \caption{第十三题(a)R代码}
+\end{figure}
+\noindent
+(b)题代码如下:
+\lstset{language = R}
+\begin{lstlisting}
+    n <- 10000
+    count <- vector(length = 7)
+    for(i in 1:n) {
+        r <- runif(10000, min = 0, max = 1)
+        accumulate = 1
+        for(j in 1:length(r)) {
+            accumulate = accumulate * r[j]
+            if(accumulate < exp(-3)) {
+                if(j-1 <= 6) {
+                    count[j] = count[j] + 1
+                }
+                 break
+            }
+        }
+    }
+    for(k in 1:length(count)) {
+        print(count[k]/n)
+    }
+\end{lstlisting}
+第十三题(b)运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 9cm, width = 8cm]{gramFile/第十三题(b)运行截图.PNG}
+    \caption{第十三题(b)R代码}
+\end{figure}
+\noindent
+所以:
+\begin{center}
+    \begin{tabular}{|c|c|}
+        \hline
+        $P\left\{N=0\right\} = 0.0504$ & $P\left\{N=1\right\} = 0.1556$ \\
+        \hline
+        $P\left\{N=2\right\} = 0.2199$ & $P\left\{N=3\right\} = 0.2166$ \\
+        \hline
+        $P\left\{N=4\right\} = 0.1736$ & $P\left\{N=5\right\} = 0.0993$ \\
+        \hline
+        $P\left\{N=6\right\} = 0.0525$ & -----                          \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\hspace*{\fill} \\
+
+\noindent
+3.14. With $x_{1} = 23$, $x_{2} = 66$, and \\
+$$
+    x_{n} = 3x_{n-1} + 5x_{n-2} \ \ \ \ \ mod(100), \ \ \ n \geq 3
+$$
+We will call the sequence $u_{n} = x_{n}/100, \ n \geq 1$,
+the text's random number sequence. Find its first 14 values. \\
+解:代码如下
+\lstset{language = R}
+\begin{lstlisting}
+    result <- vector(length = 14)
+    x <- vector(length = 14)
+    result[1] = 23
+    result[2] = 66
+    x[1] = 23 %% 100
+    x[2] = 66 %% 100
+    for(i in 3:14) {
+        x[i] = 3 * result[i-1] + 5 * result[i-2]	
+        result[i] = x[i] %% 100
+    }
+    print(round(result/100,2))
+\end{lstlisting}
+第十四题运行截图
+\begin{figure}[H]
+    \centering
+    \includegraphics*[height = 4.2cm, width = 12cm]{gramFile/第十四题运行截图.PNG}
+    \caption{第十四题R代码} 
+\end{figure}   
+ 
+\end{document}
